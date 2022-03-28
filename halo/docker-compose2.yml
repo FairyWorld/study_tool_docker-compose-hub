@@ -1,0 +1,62 @@
+version: "3"
+
+services:
+  halo_server:
+    depends_on:
+      - mysql_db
+      - redis_db
+    image: halohub/halo:latest
+    container_name: halo-self
+    restart: unless-stopped
+    networks:
+      halo_net:
+        ipv4_address: 172.19.0.4
+    volumes:
+      - $PWD/.halo/:/root/.halo
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8090:8090"
+
+  mysql_db:
+    image: mysql:8.0.27
+    restart: always
+    networks:
+      halo_net:
+        ipv4_address: 172.19.0.2
+    container_name: halo-mysql
+    command: --default_authentication_plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+    ports:
+      - "3306:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - $PWD/mysql/var/lib/mysql:/var/lib/mysql
+      - $PWD/mysql/mysqlBackup:/data/mysqlBackup
+    environment:
+      ## 此处需要输入自定义mysql密码
+      - MYSQL_ROOT_PASSWORD = mysqlpass
+
+  redis_db:
+    image: redis
+    restart: always
+    networks:
+      halo_net:
+        ipv4_address: 172.19.0.3
+    container_name: halo-redis
+    volumes:
+      - $PWD/redis/data:/data
+      - $PWD/redis/logs:/logs
+    ## 此处需要输入自定义redis密码
+    command: redis-server --requirepass redispass
+    ports:
+      - "6379:6379"
+
+networks:
+  halo_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16

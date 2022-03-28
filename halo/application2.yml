@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    # MySQL database configuration.
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 此处的地址应该使用docker-compose.yaml中配置的MySQL地址和密码
+    url: jdbc:mysql://172.19.0.2:3306/halodb?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: mysqlpass
+  redis:
+    # Redis cache configuration.
+    port: 6379
+    database: 0
+    # 此处的地址应该使用docker-compose.yaml中配置的Redis地址和密码
+    host: 172.19.0.3
+    password: redispass
+
+halo:
+  # Your admin client path is https://your-domain/{admin-path}
+  admin-path: admin
+
+  # memory or level or redis
+  cache: redis
